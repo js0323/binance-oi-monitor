@@ -44,7 +44,7 @@ def push(msg):
 def monitor_loop():
     while True:
         symbols = top_symbols(SYMBOL_LIMIT)  # 移進來這裡！
-        snap, diff_pct = {}
+        snap, diff_pct = {}, {}
         for s in symbols:
             val = fetch_oi_usdt(s)
             if val is None:
