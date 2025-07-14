@@ -42,8 +42,8 @@ def push(msg):
     requests.post(WEBHOOK_URL, json={"content": f"```{msg}```"}, timeout=10)
 
 def monitor_loop():
-    symbols = top_symbols(SYMBOL_LIMIT)
     while True:
+        symbols = top_symbols(SYMBOL_LIMIT)  # 移進來這裡！
         snap, diff_pct = {}, {}
         for s in symbols:
             val = fetch_oi_usdt(s)
@@ -61,7 +61,8 @@ def monitor_loop():
                     pos_streak[s] = 0
             prev_oi[s] = val
 
-        if diff_pct:
+        # ✅ 即使只有第一次抓也會推播一輪
+        if snap:
             top_pos = sorted(((s, p) for s, p in diff_pct.items() if p > 0), key=lambda x: x[1], reverse=True)[:10]
             top_neg = sorted(((s, p) for s, p in diff_pct.items() if p < 0), key=lambda x: x[1])[:10]
             biggest5 = sorted(snap.items(), key=lambda x: x[1], reverse=True)[:5]
@@ -73,13 +74,14 @@ def monitor_loop():
                 lines.append(f"{sym}: 持倉量(U): {val:,.2f} | 持倉變化: {d:+.2f}%")
             lines += ["", "👍 持倉正成長前十："]
             for sym, d in top_pos:
-                lines.append(f"{sym:<10}| 持倉量(U): {snap[sym]:,.2f} | 持倉變化: {d:+.2f}% | 正成長次數:{pos_streak[sym]}")
+                lines.append(f"{sym:<10}| 持倉量(U): {snap[sym]:,.2f} | 持倉變化: {d:+.2f}% | 正成長次數:{pos_streak.get(sym, 0)}")
             lines += ["", "👎 持倉負成長前十："]
             for sym, d in top_neg:
-                lines.append(f"{sym:<10}| 持倉量(U): {snap[sym]:,.2f} | 持倉變化: {d:+.2f}% | 負成長次數:{neg_streak[sym]}")
+                lines.append(f"{sym:<10}| 持倉量(U): {snap[sym]:,.2f} | 持倉變化: {d:+.2f}% | 負成長次數:{neg_streak.get(sym, 0)}")
             push("\n".join(lines))
 
         time.sleep(INTERVAL_SEC)
+
 
 # === Flask App for Render Keep-Alive ===
 app = Flask(__name__)
