@@ -14,8 +14,7 @@ from flask import Flask
 
 # === Discord Webhook ===
 WEBHOOK_URL = (
-    "https://discord.com/api/webhooks/"
-    "1391850608499228712/jvExTuzWLb_iOrYjgu6ci4rVVIShDBH5kWwXYkfXD-cKEDIk3ZEvp9CaFcv47MULjIzF"
+    "https://discord.com/api/webhooks/1394402678079094794/lfoAz17vpmW6ZuCtdtSxG7CoNzuujOCyB2tWyQ9oraHLI_olDHO5JwgG9kVnCK70hQUn"
 )
 
 # === 全域參數 ===
