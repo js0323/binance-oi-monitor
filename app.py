@@ -1,3 +1,5 @@
+HEADERS = {"User-Agent": "Mozilla/5.0"}
+
 # -*- coding: utf-8 -*-
 """
 Binance OI 自動推播系統 - Render 版（每 3 分鐘推送一次）
@@ -19,7 +21,8 @@ prev_oi, pos_streak, neg_streak = {}, {}, {}
 
 def top_symbols(limit=50):
     try:
-        r = requests.get(f"{UM_BASE}/fapi/v1/ticker/24hr", timeout=10)
+      r = requests.get(f"{UM_BASE}/fapi/v1/ticker/24hr", headers=HEADERS, timeout=10)
+
         j = r.json()
         if not isinstance(j, list):
             print("⚠️ 回傳非清單格式，可能是錯誤訊息：", j)
@@ -34,7 +37,8 @@ def top_symbols(limit=50):
 
 def fetch_oi_usdt(symbol):
     params = {"symbol": symbol, "period": "5m", "limit": 1}
-    r = requests.get(f"{UM_BASE}/futures/data/openInterestHist", params=params, timeout=10)
+   r = requests.get(f"{UM_BASE}/futures/data/openInterestHist", params=params, headers=HEADERS, timeout=10)
+
     j = r.json()
     return float(j[0]["sumOpenInterestValue"]) if j else None
 
@@ -43,11 +47,14 @@ def push(msg):
 
 def monitor_loop():
     while True:
-        symbols = top_symbols(SYMBOL_LIMIT)  # 移進來這裡！
+        symbols = top_symbols(SYMBOL_LIMIT)
+        print("🪪 取得幣種數量：", len(symbols))  # ✅ 第一個 print（確認是否有拿到幣種清單）
+
         snap, diff_pct = {}, {}
         for s in symbols:
             val = fetch_oi_usdt(s)
             if val is None:
+                print(f"⚠️ 無 OI 資料：{s}")      # ✅ 第二個 print（確認哪個幣沒資料）
                 continue
             snap[s] = val
             if s in prev_oi:
@@ -61,7 +68,8 @@ def monitor_loop():
                     pos_streak[s] = 0
             prev_oi[s] = val
 
-        # ✅ 即使只有第一次抓也會推播一輪
+        print("📊 本輪 snap 大小：", len(snap))  # ✅ 第三個 print（確認實際有多少幣有有效 OI 資料）
+
         if snap:
             top_pos = sorted(((s, p) for s, p in diff_pct.items() if p > 0), key=lambda x: x[1], reverse=True)[:10]
             top_neg = sorted(((s, p) for s, p in diff_pct.items() if p < 0), key=lambda x: x[1])[:10]
@@ -81,6 +89,7 @@ def monitor_loop():
             push("\n".join(lines))
 
         time.sleep(INTERVAL_SEC)
+
 
 
 # === Flask App for Render Keep-Alive ===
