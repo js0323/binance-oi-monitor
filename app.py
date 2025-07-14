@@ -62,9 +62,11 @@ def fetch_oi(inst_id: str):
 # ---------- 推播 Discord ----------
 def push(msg: str):
     try:
-        requests.post(WEBHOOK_URL, json={"content": f"```{msg}```"}, timeout=10)
+        r = requests.post(WEBHOOK_URL, json={"content": f"```{msg}```"}, timeout=10)
+        print("📨 webhook status:", r.status_code, r.text, flush=True)   # ← 新增
     except Exception as e:
-        print("⚠️ push 失敗：", e)
+        print("⚠️ push 失敗：", e, flush=True)
+
 
 # ---------- 監控主迴圈 ----------
 def monitor_loop():
