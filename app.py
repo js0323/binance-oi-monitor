@@ -63,6 +63,7 @@ def push(msg: str):
 
 # ---------- 監控主迴圈 ----------
 def monitor_loop():
+    print("🚀 啟動 monitor_loop()")  # ← 插這行
     while True:
         symbols = top_symbols(SYMBOL_LIMIT)
         print("🪪 取得幣種數量：", len(symbols))
