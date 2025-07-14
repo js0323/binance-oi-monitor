@@ -21,18 +21,16 @@ prev_oi, pos_streak, neg_streak = {}, {}, {}
 
 def top_symbols(limit=50):
     try:
-      r = requests.get(f"{UM_BASE}/fapi/v1/ticker/24hr", headers=HEADERS, timeout=10)
-
+        r = requests.get(f"{UM_BASE}/fapi/v1/ticker/24hr", headers=HEADERS, timeout=10)
         j = r.json()
         if not isinstance(j, list):
             print("⚠️ 回傳非清單格式，可能是錯誤訊息：", j)
             return []
-        data = [d for d in j if d["symbol"].endswith("USDT")]
-        data.sort(key=lambda x: float(x["quoteVolume"]), reverse=True)
-        return [d["symbol"] for d in data[:limit]]
+        ...
     except Exception as e:
         print("⚠️ 無法取得前50大幣種：", e)
         return []
+
 
 
 def fetch_oi_usdt(symbol):
